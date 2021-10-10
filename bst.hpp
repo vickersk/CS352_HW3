@@ -16,7 +16,9 @@ class bst {
 
     /// Returns either a deep clone of o, or nullptr if o is null
     static std::unique_ptr<bst> clone(const std::unique_ptr<bst>& o) {
-        assert(!"unimplemented");
+
+        // If o is null, returns nullptr, otherwise returns a deep clone
+        return (o) ? std::unique_ptr<bst>(new bst{*o}) : nullptr;
     }
 
 public:
@@ -37,7 +39,15 @@ public:
 
     /// Copy-assignment operator. Should perform a deep copy of o.
     bst& operator= (const bst& o) {
-        assert(!"unimplemented");
+
+        // Checks if o is the same as self
+        if (&o == this) { return *this; }
+
+        // Reassigns value, left and right to o
+        value = o.vlaue;
+        left = clone(o.left);
+        right = clone(o.left);
+
         return *this;
     }
 
@@ -61,14 +71,22 @@ public:
         /// Inserts this node into the iterator stack.
         /// Stores this node and its (recursive) left children on the stack.
         void fill_left(const bst* node) {
-            assert(!"unimplemented");
+
+            // Checks if the node is non-null
+            if (node) {
+                // Inserts the node into the iterator stack
+                nodes.push_back(node);
+
+                // Recursively inserts the left children on the stack
+                fill_left(node->left.get());
+            }
         }
 
         /// Builds a const_iterator for the subtree rooted at node.
         /// Initializes the stack to the path to the leftmost child 
         /// of node.
         const_iterator(const bst& node) : nodes() {
-            assert(!"unimplemented");
+            fill_left(&node);
         }
 
     public:
@@ -77,8 +95,8 @@ public:
 
         /// True if iterator is non-empty (has any nodes left).
         explicit operator bool() const {
-            assert(!"unimplemented");
-            return false;
+            // Returns true if the iterator is non-empty
+            return !nodes.empty();
         }
 
         /// Go to next node. The current node is removed from the 
@@ -87,8 +105,18 @@ public:
         /// exists, the previous node in the stack. This method may 
         /// assume the iterator is non-empty.
         const_iterator& operator++() {
-           assert(!"unimplemented");
-           return *this;
+
+            // Extracts the current node from the stack
+            const bst* node = nodes.back();
+
+            // Pops the current node
+            nodes.pop_back();
+
+            // Adds the right child and path to its leftmost descendants
+            // fill_left checks if node exists
+            fill_left(node->right.get());
+            
+            return *this;
         }
 
         /// Post-increment operator
@@ -101,8 +129,11 @@ public:
         /// Dereference operator; returns value of current node.
         /// May assume iterator is non-empty.
         const T& operator* () const {
-            assert(!"unimplemented");
-            return *(const T*)nullptr; // FIXME
+            
+            // Extracts the current node from the stack
+            const bst* node = nodes.back();
+
+            return node->value;
         }
 
         /// Pointer-indirection operator.
@@ -133,7 +164,35 @@ public:
     /// position according to the usual BST rules. Returns true if the value 
     /// was actually added, or false if it was already present.
     bool insert(const T& val) {
-        assert(!"unimplemented");
+
+        bst* current = this;
+        
+        // Searches down the binary search tree
+        while (current) {
+
+            // If val is less than the current value, left branch is searched
+            if (val < current->value) {
+
+                // Creates a new tree is the left node doesn't exist
+                if (!current->left) {
+                    current->left = std::make_unique<bst<T>>(val);
+                    return true;
+                }
+                current = current->left.get();
+
+            // Otherwise, right branch is searched as val is greater
+            } else {
+
+                // Creates a new tree is the right node doesn't exist
+                if (!current->right) {
+                    current->right = std::make_unique<bst<T>>(val);
+                    return true;
+                }
+                current = current->right.get();
+            }
+        }
+
+        // Returns false if the value was already present
         return false;
     }
 };
