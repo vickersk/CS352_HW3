@@ -1,3 +1,6 @@
+// Code for CS 352 HW 3
+// Modified by: Kai Vickers
+
 #include <cassert>
 #include <iostream>
 #include <memory>   // for std::unique_ptr<T>
@@ -72,12 +75,12 @@ public:
         /// Stores this node and its (recursive) left children on the stack.
         void fill_left(const bst* node) {
 
-            // Checks if the node is non-null
+            // Checks if the node is non-null.
             if (node) {
-                // Inserts the node into the iterator stack
+                // Inserts the node into the iterator stack.
                 nodes.push_back(node);
 
-                // Recursively inserts the left children on the stack
+                // Recursively inserts the left children on the stack.
                 fill_left(node->left.get());
             }
         }
@@ -167,23 +170,23 @@ public:
 
         bst* current = this;
         
-        // Searches down the binary search tree
+        // Searches down the binary search tree.
         while (current) {
 
-            // If val is less than the current value, left branch is searched
+            // If val is less than the current value, left branch is searched.
             if (val < current->value) {
 
-                // Creates a new tree is the left node doesn't exist
+                // Creates a new tree if the left node doesn't exist.
                 if (!current->left) {
                     current->left = std::make_unique<bst<T>>(val);
                     return true;
                 }
                 current = current->left.get();
 
-            // Otherwise, right branch is searched as val is greater
+            // Otherwise, the right branch is searched as val is greater.
             } else {
 
-                // Creates a new tree is the right node doesn't exist
+                // Creates a new tree if the right node doesn't exist.
                 if (!current->right) {
                     current->right = std::make_unique<bst<T>>(val);
                     return true;
@@ -192,7 +195,7 @@ public:
             }
         }
 
-        // Returns false if the value was already present
+        // Returns false if the value was already present.
         return false;
     }
 };

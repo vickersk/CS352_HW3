@@ -1,3 +1,6 @@
+// Code for CS 352 HW 3
+// Modified by: Kai Vickers
+
 use std::cmp;
 use std::fmt;
 
@@ -38,13 +41,26 @@ impl<'a,E> BstIter<'a,E> {
     /// Modifies the current iterator to add [node] and all its 
     /// (recursive) left children
     fn fill_left(&mut self, mut node: &'a Bst<E>) {
-        unimplemented!()
+
+        // Adds the node to the iterator stack.
+        self.nodes.push(node);
+
+        // Recursively adds the left children if it has a value.
+        if let Some(node_left) = &node.left {
+            self.fill_left(&node_left)
+        }
     }
 
     /// Creates a new iterator pointing to the leftmost (least) 
     /// child of [node]
     pub fn new(node: &'a Bst<E>) -> BstIter<'a,E> {
-        unimplemented!()
+
+        // Builds a BstIter class object with a new Vec.
+        let mut iter = BstIter { nodes: Vec::<&Bst<E>>::new() };
+
+        // Initializes the iterator for the root node.
+        iter.fill_left(node);
+        return iter
     }
 }
 
@@ -61,7 +77,22 @@ impl<'a,E> Iterator for BstIter<'a,E> {
     /// leftmost child of the current node's right child, or, if no 
     /// right child exists, the previous node in the stack.
     fn next(&mut self) -> Option<Self::Item> {
-        unimplemented!()
+        
+        // Pops the current node from the stack, None if otherwise.
+        let node = self.nodes.pop();
+
+        // Returns None if nodes is empty
+        if let None = node {
+            return None
+        }
+
+        // If the current node has a value, the right child and path are added.
+        if let Some(node_right) = &node.unwrap().right {
+            self.fill_left(&node_right);
+        }
+        
+        // Returns the current node value as an Option.
+        return Some(&node.unwrap().value)
     }
 }
 
@@ -70,7 +101,14 @@ impl<E : cmp::Ord> Bst<E> {
     /// Convenience construction method for BST from fields. 
     /// Should make a new Bst with the given value and empty left and right subtrees.
     pub fn new(value: E) -> Self {
-        unimplemented!()
+
+        // Creates a new Bst node with the given value.
+        // Sets the left and right subtrees to empty.
+        Bst {
+            value,
+            left: None,
+            right: None
+        }
     }
 
     /// Gets the iterator for this BST, starting at the least element.
@@ -81,6 +119,31 @@ impl<E : cmp::Ord> Bst<E> {
     /// Inserts the value into the BST in the proper (sorted) position.
     /// Returns true if inserted, false if already present.
     pub fn insert(&mut self, val: E) -> bool {
-        unimplemented!()
+
+        // Checks if the value is already in the tree.
+        if val == self.value {
+            return false
+        }
+        
+        // If val is less than the current value, the left branch is searched.
+        if val < self.value {
+            if let Some(left_subtree) = &mut self.left {
+                return left_subtree.insert(val)
+            }
+
+            // Creates a new tree if the left node doesn't exist.
+            self.left = Some(Box::new(Bst::new(val)));
+            return true
+
+        // Otherwise, the right branch is searched
+        } else {
+            if let Some(right_subtree) = &mut self.right {
+                return right_subtree.insert(val)
+            }
+
+            // Creates a new tree if the right node doesn't exist.
+            self.right = Some(Box::new(Bst::new(val)));
+            return true
+        }
     }
 }
