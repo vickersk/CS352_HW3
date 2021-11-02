@@ -46,10 +46,10 @@ public:
         // Checks if o is the same as self
         if (&o == this) { return *this; }
 
-        // Reassigns value, left and right to o
+        // Reassigns value, left and right to that of o
         value = o.vlaue;
         left = clone(o.left);
-        right = clone(o.left);
+        right = clone(o.right);
 
         return *this;
     }
@@ -116,7 +116,7 @@ public:
             nodes.pop_back();
 
             // Adds the right child and path to its leftmost descendants
-            // fill_left checks if node exists
+            // (fill_left checks if the node exists)
             fill_left(node->right.get());
             
             return *this;
@@ -136,6 +136,7 @@ public:
             // Extracts the current node from the stack
             const bst* node = nodes.back();
 
+            // Returns the value of the node
             return node->value;
         }
 
@@ -173,7 +174,7 @@ public:
         // Searches down the binary search tree.
         while (current) {
 
-            // If val is less than the current value, left branch is searched.
+            // If val is less than the current value, the left branch is searched.
             if (val < current->value) {
 
                 // Creates a new tree if the left node doesn't exist.
@@ -181,6 +182,8 @@ public:
                     current->left = std::make_unique<bst<T>>(val);
                     return true;
                 }
+
+                // Updates current to the left subtree
                 current = current->left.get();
 
             // Otherwise, the right branch is searched as val is greater.
@@ -191,6 +194,8 @@ public:
                     current->right = std::make_unique<bst<T>>(val);
                     return true;
                 }
+
+                // Updates current to the right subtree
                 current = current->right.get();
             }
         }
